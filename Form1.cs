@@ -45,7 +45,7 @@ namespace Agar
         private void Form1_Load(object sender, EventArgs e)
         {
             gameTimer.Enabled = true;
-            player.size = 10;  
+            //player.size = 10;  
         }
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -85,21 +85,27 @@ namespace Agar
         }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
+            player.speed = player.baseSpeed * Qrsqrt(player.size * 0.1f);
+
+            if (player.speed < 0)
+            {
+                player.speed *= -1;
+            }
             if (keyPressed[0] == true)
             {
-                player.y -= player.speed;
+                player.y -= Convert.ToInt32(player.speed);
             }
             if (keyPressed[1] == true)
             {
-                player.y += player.speed;
+                player.y += Convert.ToInt32(player.speed);
             }
             if (keyPressed[2] == true)
             {
-                player.x -= player.speed;
+                player.x -= Convert.ToInt32(player.speed);
             }
             if (keyPressed[3] == true)
             {
-                player.x += player.speed;
+                player.x += Convert.ToInt32(player.speed);
             }
             if (foodItems.Count < foodAmount)
             {
@@ -143,14 +149,32 @@ namespace Agar
             }
         }
 
+        static float Qrsqrt(float number)
+        {
+            unsafe
+            {
+                long i;
+                float x2, y;
+                float threehalfs = 1.5f;
 
+                x2 = number * 0.5f;
+                y = number;
+                i = *(long*)&y;                       // evil floating point bit level hacking
+                i = 0x5f3759df - (i >> 1);               // what the fuck? 
+                y = *(float*)&i;
+                y = y * (threehalfs - (x2 * y * y));   // 1st iteration
+                                                       //y = y * (threehalfs - (x2 * y * y));   // 2nd iteration, this can be removed
+                return y;
+            }
+        }
     }
 
     public class Player
     {
         public int baseSpeed = 6;
-        public int size = 10;
-        public int speed = 2;
+        //public int normalSpeed = 2;
+        public float size = 10000;
+        public float speed = 2;
         public int x = 4000;
         public int y = 4000;
     }
