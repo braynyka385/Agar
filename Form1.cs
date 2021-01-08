@@ -9,16 +9,23 @@ using System.Windows.Forms;
 namespace Agar
 {
     /*Primary Wants:
-     * Player grows when eating
+     * Actually show player in centre of screen
+     * Player grows when eating, eating in general
+     * Map border
+     * Splitting
+     * Speed changes with player size
+     * Skins, audio (not that important but very easy)
      * 
+     * Secondary wants: 
+     * Viruses
+     * Basic AI enemies
+     * Eat enemies, only when size is larger than them
+     * Feeding (not too hard, could prob do in 5 mins)
      * 
-     * 
-     * 
-     * 
-     * 
-     * 
-     * 
-     * 
+     * Tertiary Goals: 
+     * Networking
+     * Multiplayer
+     * Adaptive view area
      */
     public partial class Form1 : Form
     {
@@ -135,10 +142,13 @@ namespace Agar
                 }
             }
         }
+
+
     }
 
     public class Player
     {
+        public int baseSpeed = 6;
         public int size = 10;
         public int speed = 2;
         public int x = 4000;
