@@ -29,7 +29,9 @@ namespace Agar
      */
     public partial class Form1 : Form
     {
-        public static int mapSize = 8000;
+        public static int mapSize = 24000;
+        public static int mapScale = 25;
+        public static int defMapScale = 25;
         Pen gridPen = new Pen(Color.Black, 1);
         Pen redPen = new Pen(Color.Red, 1);
         Player player = new Player();
@@ -95,7 +97,7 @@ namespace Agar
             {
                 for (int i = foodItems.Count - 1; i >= 0; i--)
                 {
-                    if (foodItems[i].hitbox.IntersectsWith(playerBox)) //this.Width / 2 - player.size + player.x && foodItems[i].x < this.Width / 2 + player.size + player.x && foodItems[i].y > this.Height / 2 - player.size + player.y && foodItems[i].y < this.Height / 2 + player.size + player.y
+                    if (foodItems[i].hitbox.IntersectsWith(playerBox))
                     {
                         foodItems[i] = null;
                         foodItems.RemoveAt(i);
