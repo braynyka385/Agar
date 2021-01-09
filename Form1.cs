@@ -36,7 +36,7 @@ namespace Agar
         Pen redPen = new Pen(Color.Red, 1);
         Player player = new Player();
 
-        int foodAmount = 5000;
+        int foodAmount = 50000;
         List<Food> foodItems = new List<Food>();
         public static Random random = new Random();
         bool[] keyPressed = new bool[5];
