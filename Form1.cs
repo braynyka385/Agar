@@ -29,13 +29,14 @@ namespace Agar
      */
     public partial class Form1 : Form
     {
-        int mapSize = 8000;
+        public static int mapSize = 8000;
         Pen gridPen = new Pen(Color.Black, 1);
+        Pen redPen = new Pen(Color.Red, 1);
         Player player = new Player();
 
         int foodAmount = 10000;
         List<Food> foodItems = new List<Food>();
-        Random random = new Random();
+        public static Random random = new Random();
         bool[] keyPressed = new bool[5];
         public Form1()
         {
@@ -85,6 +86,23 @@ namespace Agar
         }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
+            Graphics g = this.CreateGraphics();
+            Rectangle playerBox = new Rectangle(this.Width / 2 - Convert.ToInt32(player.size / 2) + player.x, this.Height / 2 - Convert.ToInt32(player.size / 2) + player.x, Convert.ToInt32(player.size / 2) + player.x, Convert.ToInt32(player.size / 2) + player.x);
+            g.DrawRectangle(redPen, playerBox);
+            if (foodItems.Count > 0)
+            {
+                for (int i = foodItems.Count - 1; i >= 0; i--)
+                {
+                    if (foodItems[i].hitbox.IntersectsWith(playerBox)) //this.Width / 2 - player.size + player.x && foodItems[i].x < this.Width / 2 + player.size + player.x && foodItems[i].y > this.Height / 2 - player.size + player.y && foodItems[i].y < this.Height / 2 + player.size + player.y
+                    {
+                        foodItems[i] = null;
+                        foodItems.RemoveAt(i);
+                        player.size++;
+                    }
+                }
+            }
+            
+            
             player.speed = player.baseSpeed * Qrsqrt(player.size * 0.1f);
 
             if (player.speed < 0)
@@ -111,10 +129,16 @@ namespace Agar
             {
                 for (int i = 0; i <= foodAmount - foodItems.Count; i++)
                 {
+                    int x = random.Next(1, mapSize);
+                    int y = random.Next(1, mapSize);
                     Food food = new Food();
-                    food.x = random.Next(1, mapSize);
-                    food.y = random.Next(1, mapSize);
+                    food.x = x;
+                    food.y = y;
                     food.color = Color.FromArgb(random.Next(0, 255), random.Next(0, 255), random.Next(0, 255));
+                    Rectangle hitbox = new Rectangle(x, y, 5, 5);
+                    food.hitbox = hitbox;
+                    //food.Generate();
+                    
                     foodItems.Add(food);
                 }
             }
@@ -123,6 +147,7 @@ namespace Agar
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             //Show a grid pattern
+            
             for (int x = 0; x <= mapSize; x += 25)
             {
                 if (x >= player.x - this.Width && x <= player.x + this.Width)
@@ -145,8 +170,10 @@ namespace Agar
                 {
                     Pen pen = new Pen(f.color, 4);
                     e.Graphics.DrawEllipse(pen, f.x - player.x, f.y - player.y, 5, 5);
+                    //e.Graphics.DrawRectangle(pen, f.hitbox);
                 }
             }
+            e.Graphics.DrawRectangle(redPen, this.Width / 2 - Convert.ToInt32(player.size / 2), this.Height / 2 - Convert.ToInt32(player.size / 2), Convert.ToInt32(player.size / 2), Convert.ToInt32(player.size / 2));
         }
 
         static float Qrsqrt(float number)
@@ -173,7 +200,7 @@ namespace Agar
     {
         public int baseSpeed = 6;
         //public int normalSpeed = 2;
-        public float size = 10000;
+        public float size = 100;
         public float speed = 2;
         public int x = 4000;
         public int y = 4000;
@@ -184,6 +211,17 @@ namespace Agar
         public int size = 1;
         public int x;
         public int y;
+        public Rectangle hitbox = new Rectangle();
+        public void Generate()
+        {
+            x = Form1.random.Next(1, Form1.mapSize);
+            y = Form1.random.Next(1, Form1.mapSize);
+            hitbox.X = x;
+            hitbox.Y = y;
+            hitbox.Width = 1;
+            hitbox.Height = 1;
+        }
+        
         public Color color = new Color();
     }
 }
