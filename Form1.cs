@@ -34,10 +34,11 @@ namespace Agar
         Pen redPen = new Pen(Color.Red, 1);
         Player player = new Player();
 
-        int foodAmount = 10000;
+        int foodAmount = 5000;
         List<Food> foodItems = new List<Food>();
         public static Random random = new Random();
         bool[] keyPressed = new bool[5];
+
         public Form1()
         {
             InitializeComponent();
@@ -47,6 +48,7 @@ namespace Agar
         {
             gameTimer.Enabled = true;
             //player.size = 10;  
+            player.color = Color.FromArgb(random.Next(1, 255), random.Next(1, 255), random.Next(1, 255));
         }
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -87,7 +89,7 @@ namespace Agar
         private void gameTimer_Tick(object sender, EventArgs e)
         {
             Graphics g = this.CreateGraphics();
-            Rectangle playerBox = new Rectangle(this.Width / 2 - Convert.ToInt32(player.size / 2) + player.x, this.Height / 2 - Convert.ToInt32(player.size / 2) + player.x, Convert.ToInt32(player.size / 2) + player.x, Convert.ToInt32(player.size / 2) + player.x);
+            Rectangle playerBox = new Rectangle(this.Width / 2 - Convert.ToInt32(player.size / 4) + player.x, this.Height / 2 - Convert.ToInt32(player.size / 4) + player.y, Convert.ToInt32(player.size / 2), Convert.ToInt32(player.size / 2));
             g.DrawRectangle(redPen, playerBox);
             if (foodItems.Count > 0)
             {
@@ -146,6 +148,8 @@ namespace Agar
         }
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
+            Brush playerBrush = new SolidBrush(player.color);
+
             //Show a grid pattern
             
             for (int x = 0; x <= mapSize; x += 25)
@@ -173,7 +177,7 @@ namespace Agar
                     //e.Graphics.DrawRectangle(pen, f.hitbox);
                 }
             }
-            e.Graphics.DrawRectangle(redPen, this.Width / 2 - Convert.ToInt32(player.size / 2), this.Height / 2 - Convert.ToInt32(player.size / 2), Convert.ToInt32(player.size / 2), Convert.ToInt32(player.size / 2));
+            e.Graphics.FillRectangle(playerBrush, this.Width / 2 - Convert.ToInt32(player.size / 4), this.Height / 2 - Convert.ToInt32(player.size / 4), Convert.ToInt32(player.size / 2), Convert.ToInt32(player.size / 2));
         }
 
         static float Qrsqrt(float number)
@@ -198,12 +202,13 @@ namespace Agar
 
     public class Player
     {
-        public int baseSpeed = 6;
+        public int baseSpeed = 18;
         //public int normalSpeed = 2;
         public float size = 100;
         public float speed = 2;
         public int x = 4000;
         public int y = 4000;
+        public Color color = new Color();
     }
 
     public class Food
