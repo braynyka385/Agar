@@ -35,11 +35,14 @@ namespace Agar
         Pen gridPen = new Pen(Color.Black, 1);
         Pen redPen = new Pen(Color.Red, 1);
         Player player = new Player();
+        public static List<Player> playerObjects = new List<Player>();
 
         int foodAmount = 50000;
         List<Food> foodItems = new List<Food>();
         public static Random random = new Random();
         bool[] keyPressed = new bool[5];
+
+        public static int[] mousePos = new int[2];
 
         public Form1()
         {
@@ -68,6 +71,9 @@ namespace Agar
                 case Keys.D:
                     keyPressed[3] = true;
                     break;
+                case Keys.Space:
+                    keyPressed[4] = true;
+                    break;
             }
         }
         private void Form1_KeyUp(object sender, KeyEventArgs e)
@@ -86,10 +92,17 @@ namespace Agar
                 case Keys.D:
                     keyPressed[3] = false;
                     break;
+                case Keys.Space:
+                    keyPressed[4] = false;
+                    break;
             }
         }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
+            if (keyPressed[4] == true)
+            {
+                player.Split();
+            }
             Graphics g = this.CreateGraphics();
             Rectangle playerBox = new Rectangle(this.Width / 2 - Convert.ToInt32(player.size / 4) + player.x, this.Height / 2 - Convert.ToInt32(player.size / 4) + player.y, Convert.ToInt32(player.size / 2), Convert.ToInt32(player.size / 2));
             g.DrawRectangle(redPen, playerBox);
@@ -108,6 +121,10 @@ namespace Agar
             
             
             player.speed = player.baseSpeed * Qrsqrt(player.size * 0.1f);
+            foreach (Player p in playerObjects)
+            {
+                p.speed = p.baseSpeed * Qrsqrt(p.size * 0.1f);
+            }
 
             if (player.speed < 0)
             {
@@ -116,18 +133,46 @@ namespace Agar
             if (keyPressed[0] == true)
             {
                 player.y -= Convert.ToInt32(player.speed);
+                foreach (Player p in playerObjects)
+                {
+                    if (player.y - p.y > 100)
+                    {
+                        p.y -= Convert.ToInt32(p.speed);
+                    }
+                }
             }
             if (keyPressed[1] == true)
             {
                 player.y += Convert.ToInt32(player.speed);
+                foreach (Player p in playerObjects)
+                {
+                    if (p.y - player.y < this.Height - 100)
+                    {
+                        p.y += Convert.ToInt32(p.speed);
+                    }
+                }
             }
             if (keyPressed[2] == true)
             {
                 player.x -= Convert.ToInt32(player.speed);
+                foreach (Player p in playerObjects)
+                {
+                    if (player.x - p.x > 0)
+                    {
+                        p.x -= Convert.ToInt32(p.speed);
+                    }
+                }
             }
             if (keyPressed[3] == true)
             {
                 player.x += Convert.ToInt32(player.speed);
+                foreach (Player p in playerObjects)
+                {
+                    if (player.x - p.x > this.Width)
+                    {
+                        p.x += Convert.ToInt32(p.speed);
+                    }
+                }
             }
             if (foodItems.Count < foodAmount)
             {
@@ -180,6 +225,10 @@ namespace Agar
                 }
             }
             e.Graphics.FillRectangle(playerBrush, this.Width / 2 - Convert.ToInt32(player.size / 4), this.Height / 2 - Convert.ToInt32(player.size / 4), Convert.ToInt32(player.size / 2), Convert.ToInt32(player.size / 2));
+            foreach (Player p in playerObjects)
+            {
+                e.Graphics.FillRectangle(playerBrush, this.Width / 2 - Convert.ToInt32(p.size / 4) + player.x - p.x, this.Height / 2 - Convert.ToInt32(p.size / 4) + player.y - p.y, Convert.ToInt32(p.size / 2), Convert.ToInt32(p.size / 2));
+            }
         }
 
         static float Qrsqrt(float number)
@@ -200,6 +249,12 @@ namespace Agar
                 return y;
             }
         }
+
+        private void Form1_MouseMove(object sender, MouseEventArgs e)
+        {
+            mousePos[0] = e.Location.X;
+            mousePos[1] = e.Location.Y;
+        }
     }
 
     public class Player
@@ -211,6 +266,28 @@ namespace Agar
         public int x = 4000;
         public int y = 4000;
         public Color color = new Color();
+        public void Split()
+        {
+            if (this.size > 100)
+            {
+                if (Form1.playerObjects.Count > 0)
+                {
+                    foreach (Player f in Form1.playerObjects)
+                    {
+
+                    }
+                }
+                Player p = new Player();
+                p.size = this.size / 2;
+                p.x = this.x - 400 + Form1.mousePos[0];
+                p.y = this.y - 300 + Form1.mousePos[1];
+                this.size /= 2;
+                p.baseSpeed = 12;
+                Form1.playerObjects.Add(p);
+            }
+
+            
+        }
     }
 
     public class Food
