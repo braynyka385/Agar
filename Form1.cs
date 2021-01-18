@@ -37,7 +37,7 @@ namespace Agar
         Player player = new Player();
         public static List<Player> playerObjects = new List<Player>();
 
-        int foodAmount = 50000;
+        int foodAmount = 100000;
         List<Food> foodItems = new List<Food>();
         public static Random random = new Random();
         bool[] keyPressed = new bool[5];
@@ -104,6 +104,11 @@ namespace Agar
                 player.Split();
             }
             Graphics g = this.CreateGraphics();
+            foreach (Player p in playerObjects)
+            {
+                Rectangle hitbox = new Rectangle(this.Width / 2 - Convert.ToInt32(p.size / 4) + player.x + (player.x - p.x), this.Height / 2 - Convert.ToInt32(p.size / 4) + player.y + (player.y - p.y), Convert.ToInt32(p.size / 2), Convert.ToInt32(p.size / 2));
+                p.hitbox = hitbox;
+            }
             Rectangle playerBox = new Rectangle(this.Width / 2 - Convert.ToInt32(player.size / 4) + player.x, this.Height / 2 - Convert.ToInt32(player.size / 4) + player.y, Convert.ToInt32(player.size / 2), Convert.ToInt32(player.size / 2));
             g.DrawRectangle(redPen, playerBox);
             if (foodItems.Count > 0)
@@ -116,6 +121,15 @@ namespace Agar
                         foodItems.RemoveAt(i);
                         player.size++;
                     }
+                    foreach (Player p in playerObjects)
+                    {
+                        if (p.hitbox.IntersectsWith(foodItems[i].hitbox))
+                        {
+                            foodItems[i] = null;
+                            foodItems.RemoveAt(i);
+                            p.size++;
+                        }
+                    }
                 }
             }
             
@@ -124,6 +138,10 @@ namespace Agar
             foreach (Player p in playerObjects)
             {
                 p.speed = p.baseSpeed * Qrsqrt(p.size * 0.1f);
+                if (p.speed < 0)
+                {
+                    p.speed *= -1;
+                }
             }
 
             if (player.speed < 0)
@@ -146,10 +164,7 @@ namespace Agar
                 player.y += Convert.ToInt32(player.speed);
                 foreach (Player p in playerObjects)
                 {
-                    if (p.y - player.y < this.Height - 100)
-                    {
-                        p.y += Convert.ToInt32(p.speed);
-                    }
+                    p.y += Convert.ToInt32(p.speed);
                 }
             }
             if (keyPressed[2] == true)
@@ -237,15 +252,13 @@ namespace Agar
             {
                 long i;
                 float x2, y;
-                float threehalfs = 1.5f;
 
                 x2 = number * 0.5f;
                 y = number;
                 i = *(long*)&y;                       // evil floating point bit level hacking
-                i = 0x5f3759df - (i >> 1);               // what the fuck? 
+                i = 0x5f3759df - (i >> 1);               
                 y = *(float*)&i;
-                y = y * (threehalfs - (x2 * y * y));   // 1st iteration
-                                                       //y = y * (threehalfs - (x2 * y * y));   // 2nd iteration, this can be removed
+                y = y * (1.5f - (x2 * y * y));   
                 return y;
             }
         }
@@ -265,7 +278,10 @@ namespace Agar
         public float speed = 2;
         public int x = 4000;
         public int y = 4000;
+        public int origX;
+        public int origY;
         public Color color = new Color();
+        public Rectangle hitbox = new Rectangle();
         public void Split()
         {
             if (this.size > 100)
@@ -281,8 +297,10 @@ namespace Agar
                 p.size = this.size / 2;
                 p.x = this.x - 400 + Form1.mousePos[0];
                 p.y = this.y - 300 + Form1.mousePos[1];
+                p.origX = p.x;
+                p.origY = p.y;
                 this.size /= 2;
-                p.baseSpeed = 12;
+                p.baseSpeed = 18;
                 Form1.playerObjects.Add(p);
             }
 
