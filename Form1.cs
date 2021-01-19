@@ -41,8 +41,10 @@ namespace Agar
         public static List<Player> playerObjects = new List<Player>();
         public static List<Player> enemies = new List<Player>();
 
-        int enemyCount = 100;
-        int foodAmount = 10000;
+        bool loaded3D = false;
+
+        int enemyCount = 10;
+        int foodAmount = 60000;
         List<Food> foodItems = new List<Food>();
         public static Random random = new Random();
         bool[] keyPressed = new bool[6];
@@ -116,7 +118,7 @@ namespace Agar
                 p.x = random.Next(0, mapSize);
                 p.y = random.Next(0, mapSize);
                 p.color = Color.FromArgb(random.Next(0, 255), random.Next(0, 255), random.Next(0, 255));
-                p.size = random.Next(10, 100);
+                p.size = random.Next(100, 300);
                 enemies.Add(p);
             }
             player.speed = player.baseSpeed * Qrsqrt(player.size * 0.1f);
@@ -208,6 +210,44 @@ namespace Agar
             }
 
             //Making hitboxes for enemies, calculating enemy movement and behavior
+
+            for (int i = enemies.Count - 2; i >= 0; i--)
+            {
+                if (enemies[i].hitbox.IntersectsWith(player.hitbox))
+                {
+                    if (player.size > enemies[i].size)
+                    {
+                        player.size += enemies[i].size;
+                        enemies[i] = null;
+                        enemies.RemoveAt(i);
+                    }
+                    else
+                    {
+                        enemies[i].size += player.size;
+                        player = null;
+                    }
+                }
+
+                for (int j = enemies.Count - 2; j >= 0; j--)
+                {
+                    if (enemies[i].hitbox.IntersectsWith(enemies[j].hitbox) && i != j)
+                    {
+                        if (enemies[i].size > enemies[j].size)
+                        {
+                            enemies[i].size += enemies[j].size;
+                            enemies[j] = null;
+                            enemies.RemoveAt(j);
+
+                        }
+                        else
+                        {
+                            enemies[j].size += enemies[i].size;
+                            enemies[i] = null;
+                            enemies.RemoveAt(i);
+                        }
+                    }
+                }
+            }
             foreach (Player p in enemies)
             {
                 Rectangle hitbox = new Rectangle(p.x, p.y, Convert.ToInt32(p.size / 2), Convert.ToInt32(p.size / 2));
@@ -215,7 +255,7 @@ namespace Agar
                 int[] closest = {1000, 1000};
                 int _distance = 10000;
                 int _bestDistance = 10000;
-                
+
                 foreach (Food f in foodItems)
                 {
                     _distance = Math.Abs(p.x - f.x) + Math.Abs(p.y - f.y);
@@ -289,6 +329,29 @@ namespace Agar
             {
                 player.y += Convert.ToInt32(player.speed);
             }
+
+            if (playerObjects.Count > 0)
+            {
+                foreach (Player p in playerObjects)
+                {
+                    if (p.x > player.x + this.Width / 2 + player.size / 2)
+                    {
+                        p.x -= Convert.ToInt32(p.speed);
+                    }
+                    else if (p.x < player.x + this.Width / 2 - player.size / 2)
+                    {
+                        p.x += Convert.ToInt32(p.speed);
+                    }
+                    if (p.y > player.y + this.Height / 2 - player.size / 2)
+                    {
+                        p.y -= Convert.ToInt32(p.speed);
+                    }
+                    else if (p.y < player.y + this.Height / 2 - player.size / 2)
+                    {
+                        p.y += Convert.ToInt32(p.speed);
+                    }
+                }
+            }
             debugLabel.Text = player.x + " " + player.y + "\n" + test[0] + " " + test[1];
                 //End of testing AI
 
@@ -324,6 +387,9 @@ namespace Agar
                             playerObjects.RemoveAt(x);
                         }
                     }
+                }
+                for (int i = foodItems.Count - 5; i >= 0; i--)
+                {
                     foreach (Player p in enemies)
                     {
                         if (p.hitbox.IntersectsWith(foodItems[i].hitbox))
@@ -404,6 +470,8 @@ namespace Agar
                     e.Graphics.FillRectangle(eBrush, p.x - player.x, p.y - player.y, Convert.ToInt32(p.size / 2), Convert.ToInt32(p.size / 2));
                 }
             }
+
+
         }
 
         static float Qrsqrt(float number)
