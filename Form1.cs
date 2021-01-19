@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace Agar
 {
@@ -32,18 +33,22 @@ namespace Agar
         public static int mapSize = 24000;
         public static int mapScale = 25;
         public static int defMapScale = 25;
+
+        int mergeTime = 30000;
         Pen gridPen = new Pen(Color.Black, 1);
         Pen redPen = new Pen(Color.Red, 1);
         Player player = new Player();
         public static List<Player> playerObjects = new List<Player>();
+        public static List<Player> enemies = new List<Player>();
 
-        int foodAmount = 100000;
+        int enemyCount = 100;
+        int foodAmount = 10000;
         List<Food> foodItems = new List<Food>();
         public static Random random = new Random();
-        bool[] keyPressed = new bool[5];
+        bool[] keyPressed = new bool[6];
 
         public static int[] mousePos = new int[2];
-
+        
         public Form1()
         {
             InitializeComponent();
@@ -74,6 +79,9 @@ namespace Agar
                 case Keys.Space:
                     keyPressed[4] = true;
                     break;
+                case Keys.E:
+                    keyPressed[5] = true;
+                    break;
             }
         }
         private void Form1_KeyUp(object sender, KeyEventArgs e)
@@ -95,47 +103,32 @@ namespace Agar
                 case Keys.Space:
                     keyPressed[4] = false;
                     break;
+                case Keys.E:
+                    keyPressed[5] = false;
+                    break;
             }
         }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
-            if (keyPressed[4] == true)
+            if (enemies.Count < enemyCount)
             {
-                player.Split();
+                Player p = new Player();
+                p.x = random.Next(0, mapSize);
+                p.y = random.Next(0, mapSize);
+                p.color = Color.FromArgb(random.Next(0, 255), random.Next(0, 255), random.Next(0, 255));
+                p.size = random.Next(10, 100);
+                enemies.Add(p);
             }
-            Graphics g = this.CreateGraphics();
-            foreach (Player p in playerObjects)
-            {
-                Rectangle hitbox = new Rectangle(this.Width / 2 - Convert.ToInt32(p.size / 4) + player.x + (player.x - p.x), this.Height / 2 - Convert.ToInt32(p.size / 4) + player.y + (player.y - p.y), Convert.ToInt32(p.size / 2), Convert.ToInt32(p.size / 2));
-                p.hitbox = hitbox;
-            }
-            Rectangle playerBox = new Rectangle(this.Width / 2 - Convert.ToInt32(player.size / 4) + player.x, this.Height / 2 - Convert.ToInt32(player.size / 4) + player.y, Convert.ToInt32(player.size / 2), Convert.ToInt32(player.size / 2));
-            g.DrawRectangle(redPen, playerBox);
-            if (foodItems.Count > 0)
-            {
-                for (int i = foodItems.Count - 1; i >= 0; i--)
-                {
-                    if (foodItems[i].hitbox.IntersectsWith(playerBox))
-                    {
-                        foodItems[i] = null;
-                        foodItems.RemoveAt(i);
-                        player.size++;
-                    }
-                    foreach (Player p in playerObjects)
-                    {
-                        if (p.hitbox.IntersectsWith(foodItems[i].hitbox))
-                        {
-                            foodItems[i] = null;
-                            foodItems.RemoveAt(i);
-                            p.size++;
-                        }
-                    }
-                }
-            }
-            
-            
             player.speed = player.baseSpeed * Qrsqrt(player.size * 0.1f);
             foreach (Player p in playerObjects)
+            {
+                p.speed = p.baseSpeed * Qrsqrt(p.size * 0.1f);
+                if (p.speed < 0)
+                {
+                    p.speed *= -1;
+                }
+            }
+            foreach (Player p in enemies)
             {
                 p.speed = p.baseSpeed * Qrsqrt(p.size * 0.1f);
                 if (p.speed < 0)
@@ -153,10 +146,7 @@ namespace Agar
                 player.y -= Convert.ToInt32(player.speed);
                 foreach (Player p in playerObjects)
                 {
-                    if (player.y - p.y > 100)
-                    {
-                        p.y -= Convert.ToInt32(p.speed);
-                    }
+                    p.y -= Convert.ToInt32(p.speed);
                 }
             }
             if (keyPressed[1] == true)
@@ -172,10 +162,7 @@ namespace Agar
                 player.x -= Convert.ToInt32(player.speed);
                 foreach (Player p in playerObjects)
                 {
-                    if (player.x - p.x > 0)
-                    {
-                        p.x -= Convert.ToInt32(p.speed);
-                    }
+                    p.x -= Convert.ToInt32(p.speed);
                 }
             }
             if (keyPressed[3] == true)
@@ -183,12 +170,174 @@ namespace Agar
                 player.x += Convert.ToInt32(player.speed);
                 foreach (Player p in playerObjects)
                 {
-                    if (player.x - p.x > this.Width)
+                    p.x += Convert.ToInt32(p.speed);
+                }
+            }
+            if (keyPressed[4] == true)
+            {
+                player.Split();
+            }
+            if (keyPressed [5] == true && playerObjects.Count > 0)
+            {
+                foreach (Player p in playerObjects)
+                {
+                    if (p.x > player.x + this.Width / 2 + player.size / 2)
+                    {
+                        p.x -= Convert.ToInt32(p.speed);
+                    }
+                    else if (p.x < player.x + this.Width / 2 - player.size / 2)
                     {
                         p.x += Convert.ToInt32(p.speed);
                     }
+                    if (p.y > player.y + this.Height / 2 - player.size / 2)
+                    {
+                        p.y -= Convert.ToInt32(p.speed);
+                    }
+                    else if (p.y < player.y + this.Height / 2 - player.size / 2)
+                    {
+                        p.y += Convert.ToInt32(p.speed);
+                    }
                 }
             }
+
+            //Making hitboxes for split player cells
+            foreach (Player p in playerObjects)
+            {
+                Rectangle hitbox = new Rectangle(p.x, p.y, Convert.ToInt32(p.size / 2), Convert.ToInt32(p.size / 2));
+                p.hitbox = hitbox;
+            }
+
+            //Making hitboxes for enemies, calculating enemy movement and behavior
+            foreach (Player p in enemies)
+            {
+                Rectangle hitbox = new Rectangle(p.x, p.y, Convert.ToInt32(p.size / 2), Convert.ToInt32(p.size / 2));
+                p.hitbox = hitbox;
+                int[] closest = {1000, 1000};
+                int _distance = 10000;
+                int _bestDistance = 10000;
+                
+                foreach (Food f in foodItems)
+                {
+                    _distance = Math.Abs(p.x - f.x) + Math.Abs(p.y - f.y);
+                    
+                    if (f.x > p.x - this.Width / 2 && f.x < p.x + this.Width / 2 && f.y > p.y - this.Height / 2 && f.y < p.y + this.Height / 2 && p.chase == false && p.flee == false)
+                    {
+                        if (_distance <= _bestDistance)
+                        {
+                            _bestDistance = _distance;
+                            closest[0] = f.x - this.Width / 2;
+                            closest[1] = f.y - this.Height / 2;
+                        }
+                        if (p.x > closest[0])
+                        {
+                            p.x -= Convert.ToInt32(p.speed);
+                        }
+                        else if (p.x < closest[0])
+                        {
+                            p.x += Convert.ToInt32(p.speed);
+                        }
+                        if (p.y > closest[1])
+                        {
+                            p.y -= Convert.ToInt32(p.speed);
+                        }
+                        else if (p.y < closest[1])
+                        {
+                            p.y += Convert.ToInt32(p.speed);
+                        }
+                    }
+                }
+                //TESTING
+                /*int[] test = { 10000, 10000 };
+                if (Math.Abs(p.x - player.x) < closest[0] && Math.Abs(p.y - player.y) < closest[1])
+                {
+                    test[0] = p.x;
+                    test[1] = p.y;
+                }
+                debugLabel.Text = player.x + "\n" + player.y + "\n" + test[0] + "\n" + test[1];*/
+            }
+            //Testing AI
+            int[] test = new int[2];
+            int bestDistance = 10000;
+            int distance = 10000;
+            foreach (Food f in foodItems)
+            {
+                if (f.x > player.x && f.x < player.x + this.Width && f.y > player.y && f.y < player.y + this.Height && player.chase == false && player.flee == false)
+                {
+                    distance = Math.Abs(player.x + this.Width / 2 - f.x) + Math.Abs(player.y + this.Height / 2 - f.y);
+                    if (distance <= bestDistance)
+                    {
+                        bestDistance = distance;
+                        test[0] = f.x - this.Width / 2;
+                        test[1] = f.y - this.Height / 2;
+                    }
+                    
+                }
+            }
+            if (player.x > test[0])
+            {
+                player.x -= Convert.ToInt32(player.speed);
+            }
+            else if (player.x < test[0])
+            {
+                player.x += Convert.ToInt32(player.speed);
+            }
+            if (player.y > test[1])
+            {
+                player.y -= Convert.ToInt32(player.speed);
+            }
+            else if (player.y < test[1])
+            {
+                player.y += Convert.ToInt32(player.speed);
+            }
+            debugLabel.Text = player.x + " " + player.y + "\n" + test[0] + " " + test[1];
+                //End of testing AI
+
+                Rectangle playerBox = new Rectangle(this.Width / 2 - Convert.ToInt32(player.size / 4) + player.x, this.Height / 2 - Convert.ToInt32(player.size / 4) + player.y, Convert.ToInt32(player.size / 2), Convert.ToInt32(player.size / 2));
+            if (foodItems.Count > 0)
+            {
+                for (int i = foodItems.Count - 1; i >= 0; i--)
+                {
+                    if (foodItems[i].hitbox.IntersectsWith(playerBox))
+                    {
+                        foodItems[i] = null;
+                        foodItems.RemoveAt(i);
+                        player.size++;
+                    }
+
+                    for (int x = playerObjects.Count - 1; x >= 0; x--)
+                    {
+                        if (playerObjects[x].hitbox.IntersectsWith(foodItems[i].hitbox))
+                        {
+                            foodItems[i] = null;
+                            foodItems.RemoveAt(i);
+                            playerObjects[x].size++;
+                        }
+                        if (playerObjects[x].hitbox.IntersectsWith(playerBox) && playerObjects[x].mergeTimer.ElapsedMilliseconds >= mergeTime)
+                        {
+                            player.size += playerObjects[x].size;
+
+                            player.mergeTimer.Reset();
+                            player.mergeTimer.Stop();
+                            playerObjects[x].mergeTimer.Reset();
+                            playerObjects[x].mergeTimer.Stop();
+                            playerObjects[x] = null;
+                            playerObjects.RemoveAt(x);
+                        }
+                    }
+                    foreach (Player p in enemies)
+                    {
+                        if (p.hitbox.IntersectsWith(foodItems[i].hitbox))
+                        {
+                            foodItems[i] = null;
+                            foodItems.RemoveAt(i);
+                            p.size++;
+                        }
+                    }
+                }
+            }
+            
+            
+            
             if (foodItems.Count < foodAmount)
             {
                 for (int i = 0; i <= foodAmount - foodItems.Count; i++)
@@ -242,7 +391,18 @@ namespace Agar
             e.Graphics.FillRectangle(playerBrush, this.Width / 2 - Convert.ToInt32(player.size / 4), this.Height / 2 - Convert.ToInt32(player.size / 4), Convert.ToInt32(player.size / 2), Convert.ToInt32(player.size / 2));
             foreach (Player p in playerObjects)
             {
-                e.Graphics.FillRectangle(playerBrush, this.Width / 2 - Convert.ToInt32(p.size / 4) + player.x - p.x, this.Height / 2 - Convert.ToInt32(p.size / 4) + player.y - p.y, Convert.ToInt32(p.size / 2), Convert.ToInt32(p.size / 2));
+                if (p.x >= player.x - this.Width && p.x <= player.x + this.Width && p.y >= player.y - this.Height && p.y <= player.y + this.Height)
+                {
+                    e.Graphics.FillRectangle(playerBrush, p.x - player.x, p.y - player.y, Convert.ToInt32(p.size / 2), Convert.ToInt32(p.size / 2));
+                }
+            }
+            foreach (Player p in enemies)
+            {
+                if (p.x >= player.x - this.Width && p.x <= player.x + this.Width && p.y >= player.y - this.Height && p.y <= player.y + this.Height)
+                {
+                    Brush eBrush = new SolidBrush(p.color);
+                    e.Graphics.FillRectangle(eBrush, p.x - player.x, p.y - player.y, Convert.ToInt32(p.size / 2), Convert.ToInt32(p.size / 2));
+                }
             }
         }
 
@@ -273,15 +433,15 @@ namespace Agar
     public class Player
     {
         public int baseSpeed = 18;
-        //public int normalSpeed = 2;
         public float size = 100;
         public float speed = 2;
         public int x = 4000;
         public int y = 4000;
-        public int origX;
-        public int origY;
+        public bool chase = false;
+        public bool flee = false;
         public Color color = new Color();
         public Rectangle hitbox = new Rectangle();
+        public Stopwatch mergeTimer = new Stopwatch();
         public void Split()
         {
             if (this.size > 100)
@@ -297,10 +457,10 @@ namespace Agar
                 p.size = this.size / 2;
                 p.x = this.x - 400 + Form1.mousePos[0];
                 p.y = this.y - 300 + Form1.mousePos[1];
-                p.origX = p.x;
-                p.origY = p.y;
                 this.size /= 2;
                 p.baseSpeed = 18;
+                this.mergeTimer.Start();
+                p.mergeTimer.Start();
                 Form1.playerObjects.Add(p);
             }
 
