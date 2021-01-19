@@ -225,8 +225,8 @@ namespace Agar
                         if (_distance <= _bestDistance)
                         {
                             _bestDistance = _distance;
-                            closest[0] = f.x - this.Width / 2;
-                            closest[1] = f.y - this.Height / 2;
+                            closest[0] = f.x;
+                            closest[1] = f.y;
                         }
                         if (p.x > closest[0])
                         {
