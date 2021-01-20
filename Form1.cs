@@ -32,7 +32,7 @@ namespace Agar
     {
         //Global variables
 
-        public static int mapSize = 1800; //Size of map
+        public static int mapSize = 20000; //Size of map
         public static int mapScale = 25; //The scale that the map is rendered at
         public static int defMapScale = 25;
 
@@ -49,8 +49,8 @@ namespace Agar
 
         bool loaded3D = false; //For drawing 3D (Probably won't use)
 
-        int enemyCount = 5; //Assigns limit to how many enemies there are
-        int foodAmount = 450; //Assigns limit to how much food there is
+        int enemyCount = 10; //Assigns limit to how many enemies there are
+        int foodAmount = 10000; //Assigns limit to how much food there is
         List<Food> foodItems = new List<Food>(); //Tracks food
         public static Random random = new Random(); //Obvious what this does
         bool[] keyPressed = new bool[6]; //Tracks what keys are pressed
@@ -478,7 +478,7 @@ namespace Agar
                         {
                             enemies[i].size += playerObjects[j].size;
                             playerObjects[j] = null;
-                            playerObjects.RemoveAt(i);
+                            playerObjects.RemoveAt(j);
                             break;
                         }
                         else
