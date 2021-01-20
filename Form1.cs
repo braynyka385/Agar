@@ -172,7 +172,7 @@ namespace Agar
                 player.y -= Convert.ToInt32(player.speed);
                 foreach (Player p in playerObjects)
                 {
-                    if (p.y > 0)
+                    if (p.y > 0 && keyPressed[5] == false)
                     {
                         p.y -= Convert.ToInt32(p.speed);
                     }
@@ -183,7 +183,7 @@ namespace Agar
                 player.y += Convert.ToInt32(player.speed);
                 foreach (Player p in playerObjects)
                 {
-                    if (p.y < mapSize)
+                    if (p.y < mapSize && keyPressed[5] == false)
                     {
                         p.y += Convert.ToInt32(p.speed);
                     }
@@ -194,7 +194,7 @@ namespace Agar
                 player.x -= Convert.ToInt32(player.speed);
                 foreach (Player p in playerObjects)
                 {
-                    if (p.x > 0)
+                    if (p.x > 0 && keyPressed[5] == false)
                     {
                         p.x -= Convert.ToInt32(p.speed);
                     }
@@ -205,7 +205,7 @@ namespace Agar
                 player.x += Convert.ToInt32(player.speed);
                 foreach (Player p in playerObjects)
                 {
-                    if (p.x < mapSize)
+                    if (p.x < mapSize && keyPressed[5] == false)
                     {
                         p.x += Convert.ToInt32(p.speed);
                     }
@@ -223,19 +223,19 @@ namespace Agar
             {
                 foreach (Player p in playerObjects)
                 {
-                    if (p.x > player.x + this.Width / 2 + player.size / 2)
+                    if (p.x > player.x + this.Width / 2 + player.size / 5)
                     {
                         p.x -= Convert.ToInt32(p.speed);
                     }
-                    else if (p.x < player.x + this.Width / 2 - player.size / 2)
+                    else if (p.x < player.x + this.Width / 2 - player.size / 5)
                     {
                         p.x += Convert.ToInt32(p.speed);
                     }
-                    if (p.y > player.y + this.Height / 2 - player.size / 2)
+                    if (p.y > player.y + this.Height / 2 - player.size / 5)
                     {
                         p.y -= Convert.ToInt32(p.speed);
                     }
-                    else if (p.y < player.y + this.Height / 2 - player.size / 2)
+                    else if (p.y < player.y + this.Height / 2 - player.size / 5)
                     {
                         p.y += Convert.ToInt32(p.speed);
                     }
@@ -661,6 +661,21 @@ namespace Agar
         public Stopwatch mergeTimer = new Stopwatch();
         public void Split()
         {
+            /*foreach (Player p in Form1.playerObjects)
+            {
+                if (p.size > 100)
+                {
+                    Player p1 = new Player();
+                    p1.size = p.size / 2;
+                    p1.x = p.x + Form1.mousePos[0] - Convert.ToInt32(p1.size / 4);
+                    p1.y = p.y + Form1.mousePos[1] - Convert.ToInt32(p1.size / 4);
+                    p.size /= 2;
+                    p1.baseSpeed = 18;
+                    p.mergeTimer.Start();
+                    p1.mergeTimer.Start();
+                    Form1.playerObjects.Add(p1);
+                }
+            }*/
             if (this.size > 100)
             {
                 Player p = new Player();
@@ -673,8 +688,6 @@ namespace Agar
                 p.mergeTimer.Start();
                 Form1.playerObjects.Add(p);
             }
-
-            
         }
     }
 
