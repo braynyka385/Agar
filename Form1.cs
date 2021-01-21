@@ -815,21 +815,23 @@ namespace Agar
         public bool onBoard = false;
         public void Split()
         {
-            /*foreach (Player p in Form1.playerObjects)
+            for (int i = Form1.playerObjects.Count - 1; i >= 0; i--)
             {
-                if (p.size > 100)
+                if (Form1.playerObjects[i].size > 100)
                 {
                     Player p1 = new Player();
-                    p1.size = p.size / 2;
-                    p1.x = p.x + Form1.mousePos[0] - Convert.ToInt32(p1.size / 4);
-                    p1.y = p.y + Form1.mousePos[1] - Convert.ToInt32(p1.size / 4);
-                    p.size /= 2;
+                    p1.size = Form1.playerObjects[i].size / 2;
+                    p1.x = this.x + Form1.mousePos[0];
+                    p1.y = this.y + Form1.mousePos[1];
+                    Form1.playerObjects[i].size /= 2;
                     p1.baseSpeed = 18;
-                    p.mergeTimer.Start();
+                    Form1.playerObjects[i].mergeTimer.Start();
                     p1.mergeTimer.Start();
                     Form1.playerObjects.Add(p1);
                 }
-            }*/
+            }
+                
+            
             if (this.size > 100)
             {
                 Player p = new Player();
