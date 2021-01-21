@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.IO;
+using System.Media;
 
 namespace Agar
 {
@@ -13,31 +15,32 @@ namespace Agar
      * Actually show player in centre of screen | DONE
      * Player grows when eating, eating in general | DONE
      * Map border | DONE
-     * Splitting | In progress
+     * Splitting | Done?
      * Speed changes with player size | DONE
      * Skins, audio (not that important but very easy)
      * 
      * Secondary wants: 
-     * Viruses
-     * Basic AI enemies | In progress
+     * Viruses // Probably not
+     * Basic AI enemies | Done?
      * Eat enemies, only when size is larger than them | Done?
-     * Feeding (not too hard, could prob do in 5 mins)
+     * Feeding (not too hard, could prob do in 5 mins) // Probably won't do
      * 
      * Tertiary Goals: 
-     * Networking
-     * Multiplayer
-     * Adaptive view area
+     * Networking // NOPE
+     * Multiplayer // NOPE
+     * Adaptive view area // Probably not
      */
     public partial class Form1 : Form
     {
         //Global variables
 
-        public static int mapSize = 20000; //Size of map
+        public static int mapSize = 7000; //Size of map
         public static int mapScale = 25; //The scale that the map is rendered at
         public static int defMapScale = 25;
 
         int[] leaderboard = new int[5]; //Tracks leaderboard scores
         bool[] playerBoard = new bool[5]; //Checks if a leaderboard score is for the player
+        bool[] lastPlayerBoard = new bool[5];
 
         int mergeTime = 30000; //Amount of time to merge
         Pen gridPen = new Pen(Color.Black, 1); //Draws grid
@@ -69,13 +72,22 @@ namespace Agar
 
         bool generating = true;
 
+        System.Windows.Media.MediaPlayer leading;
+
+        SoundPlayer eating = new SoundPlayer(Properties.Resources.slurp);
+
         public Form1()
         {
             InitializeComponent();
+
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            leading = new System.Windows.Media.MediaPlayer();
+            leading.Open(new Uri(Application.StartupPath + "/Resources/first.wav"));
+
             Begin();
         }
 
@@ -426,6 +438,7 @@ namespace Agar
                         player.size += enemies[i].size;
                         enemies[i] = null;
                         enemies.RemoveAt(i);
+                        break;
                     }
                     else
                     {
@@ -467,6 +480,7 @@ namespace Agar
                             break;
                         }
                     }
+                    
                 }
 
                 for (int j = playerObjects.Count - 1; j >= 0; j--)
@@ -485,8 +499,8 @@ namespace Agar
                             playerObjects[j].size += enemies[i].size;
                             enemies[i] = null;
                             enemies.RemoveAt(i);
+                            break;
                         }
-                        break;
                     }
                 }
 
@@ -501,19 +515,24 @@ namespace Agar
                                 enemies[i].size += enemies[j].size;
                                 enemies[j] = null;
                                 enemies.RemoveAt(j);
-
+                                break;
                             }
                             else
                             {
                                 enemies[j].size += enemies[i].size;
                                 enemies[i] = null;
                                 enemies.RemoveAt(i);
+                                break;
                             }
-                            break;
                         }
                     }
                 }
-
+                /*if (enemies[i].size > 2000)
+                {
+                    enemies[i] = null;
+                    enemies.RemoveAt(i);
+                    break;
+                }*/
             }
         }
         private void PlayerHitDetection()
@@ -529,6 +548,7 @@ namespace Agar
                         foodItems[i] = null;
                         foodItems.RemoveAt(i);
                         player.size++;
+                        eating.Play();
                     }
 
                     for (int x = playerObjects.Count - 1; x >= 0; x--)
@@ -538,6 +558,7 @@ namespace Agar
                             foodItems[i] = null;
                             foodItems.RemoveAt(i);
                             playerObjects[x].size++;
+                            eating.Play();
                         }
                         if (playerObjects[x].hitbox.IntersectsWith(playerBox) && playerObjects[x].mergeTimer.ElapsedMilliseconds >= mergeTime)
                         {
@@ -567,7 +588,6 @@ namespace Agar
                 }
             }
         }
-
         private void GenerateFood()
         {
             if (foodItems.Count < foodAmount)
@@ -590,48 +610,56 @@ namespace Agar
         }
         private void Leaderboard()
         {
-            for (int i = 0; i < 5; i++)
+            if (generating == false)
             {
-                playerBoard[i] = false;
-                leaderboard[i] = 0;
-            }
-            for (int j = enemies.Count - 1; j >= 0; j--)
-            {
-                enemies[j].onBoard = false;
-            }
-            int index = 0;
-            int size = Convert.ToInt32(player.size);
-            foreach (Player p in playerObjects)
-            {
-                size += Convert.ToInt32(p.size);
-            }
-            for (int i = 0; i < 5; i++)
-            {
+                for (int i = 0; i < 5; i++)
+                {
+                    lastPlayerBoard[i] = playerBoard[i];
+                    playerBoard[i] = false;
+                    leaderboard[i] = 0;
+                }
                 for (int j = enemies.Count - 1; j >= 0; j--)
                 {
-                    if (enemies[j].size > leaderboard[i] && enemies[j].onBoard == false)
+                    enemies[j].onBoard = false;
+                }
+                int index = 0;
+                int size = Convert.ToInt32(player.size);
+                foreach (Player p in playerObjects)
+                {
+                    size += Convert.ToInt32(p.size);
+                }
+                for (int i = 0; i < 5; i++)
+                {
+                    for (int j = enemies.Count - 1; j >= 0; j--)
                     {
-                        leaderboard[i] = Convert.ToInt32(enemies[j].size);
-                        enemies[j].onBoard = true;
-                        index = j;
+                        if (enemies[j].size > leaderboard[i] && enemies[j].onBoard == false)
+                        {
+                            leaderboard[i] = Convert.ToInt32(enemies[j].size);
+                            enemies[j].onBoard = true;
+                            index = j;
+                        }
                     }
+                    if (size > leaderboard[i] && player.onBoard == false)
+                    {
+                        leaderboard[i] = Convert.ToInt32(size);
+                        playerBoard[i] = true;
+                        index = -1;
+                        player.onBoard = true;
+                    }
+                    if (index != -1)
+                    {
+                        enemies[index].onBoard = true;
+                    }
+
                 }
-                if (size > leaderboard[i] && player.onBoard == false)
+                if (lastPlayerBoard[0] == false && playerBoard[0] == true)
                 {
-                    leaderboard[i] = Convert.ToInt32(size);
-                    playerBoard[i] = true;
-                    index = -1;
-                    player.onBoard = true;
+                    leading.Play();
                 }
-                if (index != -1)
-                {
-                    enemies[index].onBoard = true;
-                }
-                
+
+                player.onBoard = false;
             }
             
-            
-            player.onBoard = false;
         }
         private void Form1_Paint(object sender, PaintEventArgs e)
         {

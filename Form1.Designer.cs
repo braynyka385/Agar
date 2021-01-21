@@ -53,6 +53,7 @@ namespace Agar
             // debugLabel
             // 
             this.debugLabel.AutoSize = true;
+            this.debugLabel.BackColor = System.Drawing.SystemColors.Control;
             this.debugLabel.Location = new System.Drawing.Point(684, 56);
             this.debugLabel.Name = "debugLabel";
             this.debugLabel.Size = new System.Drawing.Size(35, 13);
