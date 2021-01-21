@@ -34,9 +34,8 @@ namespace Agar
     {
         //Global variables
 
-        public static int mapSize = 7000; //Size of map
-        public static int mapScale = 25; //The scale that the map is rendered at
-        public static int defMapScale = 25;
+        public static int mapSize = 20000; //Size of map
+
 
         int[] leaderboard = new int[5]; //Tracks leaderboard scores
         bool[] playerBoard = new bool[5]; //Checks if a leaderboard score is for the player
@@ -51,10 +50,8 @@ namespace Agar
         Brush playerBrush; //To draw player/player splits
         Brush eBrush; //To draw enemies
 
-        bool loaded3D = false; //For drawing 3D (Probably won't use)
-
-        int enemyCount = 10; //Assigns limit to how many enemies there are
-        int foodAmount = 10000; //Assigns limit to how much food there is
+        int enemyCount = 15; //Assigns limit to how many enemies there are
+        int foodAmount = 20000; //Assigns limit to how much food there is
         List<Food> foodItems = new List<Food>(); //Tracks food
         public static Random random = new Random(); //Obvious what this does
         bool[] keyPressed = new bool[6]; //Tracks what keys are pressed
@@ -75,6 +72,9 @@ namespace Agar
         System.Windows.Media.MediaPlayer leading;
 
         SoundPlayer eating = new SoundPlayer(Properties.Resources.slurp);
+
+        Font nameFont = new Font("Arial", 16, FontStyle.Bold);
+        SolidBrush nameBrush = new SolidBrush(Color.Black);
 
         public Form1()
         {
@@ -548,7 +548,7 @@ namespace Agar
                         foodItems[i] = null;
                         foodItems.RemoveAt(i);
                         player.size++;
-                        eating.Play();
+                        //eating.Play();
                     }
 
                     for (int x = playerObjects.Count - 1; x >= 0; x--)
@@ -558,7 +558,7 @@ namespace Agar
                             foodItems[i] = null;
                             foodItems.RemoveAt(i);
                             playerObjects[x].size++;
-                            eating.Play();
+                            //eating.Play();
                         }
                         if (playerObjects[x].hitbox.IntersectsWith(playerBox) && playerObjects[x].mergeTimer.ElapsedMilliseconds >= mergeTime)
                         {
@@ -713,26 +713,27 @@ namespace Agar
                         e.Graphics.FillRectangle(eBrush, p.x - player.x, p.y - player.y, Convert.ToInt32(p.size / 2), Convert.ToInt32(p.size / 2));
                     }
                 }
-            }
-
-            //Drawing leaderboard
-            debugLabel.Text = "";
-            for (int i = 0; i < 5; i++)
-            {
-                if (playerBoard[i] == false && leaderboard[i] != 0)
+                //Drawing leaderboard
+                debugLabel.Text = "";
+                for (int i = 0; i < 5; i++)
                 {
-                    debugLabel.Text += i + 1 + ": " + leaderboard[i] + "\n";
+                    if (playerBoard[i] == false && leaderboard[i] != 0)
+                    {
+                        debugLabel.Text += i + 1 + ": " + leaderboard[i] + "\n";
+                    }
+                    else if (playerBoard[i] == true)
+                    {
+                        debugLabel.Text += i + 1 + ": " + leaderboard[i] + " (You)" + "\n";
+                    }
                 }
-                else if (playerBoard[i] == true)
-                {
-                    debugLabel.Text += i + 1 + ": " + leaderboard[i] + " (You)" + "\n";
-                }
-            }
 
+                //Drawing name of player
+                e.Graphics.DrawString(name, nameFont, nameBrush, this.Width / 2 - name.Length * 4, this.Height / 2 - 8);
+            }
         }
 
         //Calculates everything that's nonlinear. Not my code, but it's super efficient. No matter, I will explain it in comments. Comes from Quake III and is supposed to be ~3X faster than 1/sqrt(n). 
-        static float Qrsqrt(float number) //Takes a flaot as input
+        static float Qrsqrt(float number) //Takes a float as input
         {
             unsafe //This is necessary or else it won't compile. 
             {
@@ -748,7 +749,7 @@ namespace Agar
             }
         }
 
-        //Gets mouse position for splitting. TODO: Fix this
+        //Gets mouse position for splitting.
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
             mousePos[0] = e.Location.X;
