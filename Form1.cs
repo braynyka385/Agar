@@ -36,7 +36,8 @@ namespace Agar
         public static int mapScale = 25; //The scale that the map is rendered at
         public static int defMapScale = 25;
 
-        int[] leaderboard = new int[10]; //Tracks leaderboard scores
+        int[] leaderboard = new int[5]; //Tracks leaderboard scores
+        bool[] playerBoard = new bool[5]; //Checks if a leaderboard score is for the player
 
         int mergeTime = 30000; //Amount of time to merge
         Pen gridPen = new Pen(Color.Black, 1); //Draws grid
@@ -152,7 +153,6 @@ namespace Agar
         }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
-            debugLabel.Text = player.size.ToString(); //Debugging
             //Generates new enemies if there aren't enough
             while (enemies.Count < enemyCount) 
             {
@@ -183,6 +183,7 @@ namespace Agar
 
             //Generating food
             GenerateFood();
+            Leaderboard();
             Refresh();
         }
         private void GenerateEnemies()
@@ -300,7 +301,6 @@ namespace Agar
         {
             foreach (Player p in enemies)
             {
-                debugLabel.Text += "\n" + p.size;
                 int[] closest = { 1000, 1000 };
                 int _distance = 10000;
                 int _bestDistance = 10000;
@@ -421,7 +421,6 @@ namespace Agar
                 enemies[i].hitbox = hitbox;
                 if (enemies[i].hitbox.IntersectsWith(player.hitbox))
                 {
-                    debugLabel.Text = "true";
                     if (player.size > enemies[i].size)
                     {
                         player.size += enemies[i].size;
@@ -589,6 +588,51 @@ namespace Agar
                 }
             }
         }
+        private void Leaderboard()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                playerBoard[i] = false;
+                leaderboard[i] = 0;
+            }
+            for (int j = enemies.Count - 1; j >= 0; j--)
+            {
+                enemies[j].onBoard = false;
+            }
+            int index = 0;
+            int size = Convert.ToInt32(player.size);
+            foreach (Player p in playerObjects)
+            {
+                size += Convert.ToInt32(p.size);
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                for (int j = enemies.Count - 1; j >= 0; j--)
+                {
+                    if (enemies[j].size > leaderboard[i] && enemies[j].onBoard == false)
+                    {
+                        leaderboard[i] = Convert.ToInt32(enemies[j].size);
+                        enemies[j].onBoard = true;
+                        index = j;
+                    }
+                }
+                if (size > leaderboard[i] && player.onBoard == false)
+                {
+                    leaderboard[i] = Convert.ToInt32(size);
+                    playerBoard[i] = true;
+                    index = -1;
+                    player.onBoard = true;
+                }
+                if (index != -1)
+                {
+                    enemies[index].onBoard = true;
+                }
+                
+            }
+            
+            
+            player.onBoard = false;
+        }
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             if (generating == false)
@@ -643,8 +687,19 @@ namespace Agar
                 }
             }
 
-            
-
+            //Drawing leaderboard
+            debugLabel.Text = "";
+            for (int i = 0; i < 5; i++)
+            {
+                if (playerBoard[i] == false && leaderboard[i] != 0)
+                {
+                    debugLabel.Text += i + 1 + ": " + leaderboard[i] + "\n";
+                }
+                else if (playerBoard[i] == true)
+                {
+                    debugLabel.Text += i + 1 + ": " + leaderboard[i] + " (You)" + "\n";
+                }
+            }
 
         }
 
@@ -757,6 +812,7 @@ namespace Agar
         public Color color = new Color();
         public Rectangle hitbox = new Rectangle();
         public Stopwatch mergeTimer = new Stopwatch();
+        public bool onBoard = false;
         public void Split()
         {
             /*foreach (Player p in Form1.playerObjects)
