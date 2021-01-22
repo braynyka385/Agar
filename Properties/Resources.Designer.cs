@@ -61,6 +61,16 @@ namespace Agar.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon Custom_Icon_Design_Flatastic_6_Circle {
+            get {
+                object obj = ResourceManager.GetObject("Custom_Icon_Design_Flatastic_6_Circle", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
         /// </summary>
         internal static System.IO.UnmanagedMemoryStream first {

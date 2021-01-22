@@ -30,6 +30,7 @@ namespace Agar
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.gameTimer = new System.Windows.Forms.Timer(this.components);
             this.leaderboardLabel = new System.Windows.Forms.Label();
             this.startLabel = new System.Windows.Forms.Label();
@@ -186,6 +187,7 @@ namespace Agar
             this.Controls.Add(this.leaderboardLabel);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);

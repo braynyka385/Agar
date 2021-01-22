@@ -97,5 +97,8 @@
   <ItemGroup>
     <None Include="Resources\slurp.wav" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Custom-Icon-Design-Flatastic-6-Circle.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
