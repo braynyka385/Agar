@@ -513,12 +513,6 @@ namespace Agar
                         }
                     }
                 }
-                /*if (enemies[i].size > 2000)
-                {
-                    enemies[i] = null;
-                    enemies.RemoveAt(i);
-                    break;
-                }*/
             }
         }
         private void PlayerHitDetection()
