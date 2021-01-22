@@ -299,8 +299,8 @@ namespace Agar
             foreach (Player p in enemies)
             {
                 int[] closest = { 1000, 1000 };
-                int _distance = 10000;
-                int _bestDistance = 10000;
+                int distance = 10000;
+                int bestDistance = 10000;
                 foreach (Player f in enemies)
                 {
 
@@ -316,13 +316,13 @@ namespace Agar
                             p.chase = true;
                             p.flee = false;
                         }
-                        if (_distance <= _bestDistance)
+                        if (distance <= bestDistance)
                         {
-                            _bestDistance = _distance;
+                            bestDistance = distance;
                             closest[0] = f.x - Convert.ToInt32(p.size / 4);
                             closest[1] = f.y - Convert.ToInt32(p.size / 4);
                         }
-                        _distance = Math.Abs(p.x - f.x) + Math.Abs(p.y - f.y);
+                        distance = Math.Abs(p.x - f.x) + Math.Abs(p.y - f.y);
                     }
                     else
                     {
@@ -342,26 +342,26 @@ namespace Agar
                         p.chase = true;
                         p.flee = false;
                     }
-                    if (_distance <= _bestDistance)
+                    if (distance <= bestDistance)
                     {
-                        _bestDistance = _distance;
+                        bestDistance = distance;
                         closest[0] = player.x - Convert.ToInt32(p.size / 4) + this.Width / 2;
                         closest[1] = player.y - Convert.ToInt32(p.size / 4) + this.Height / 2;
                     }
-                    _distance = Math.Abs(p.x - player.x) + Math.Abs(p.y - player.y);
+                    distance = Math.Abs(p.x - player.x) + Math.Abs(p.y - player.y);
                 }
 
                 if (p.chase == false && p.flee == false)
                 {
                     foreach (Food f in foodItems)
                     {
-                        _distance = Math.Abs(p.x - f.x) + Math.Abs(p.y - f.y);
+                        distance = Math.Abs(p.x - f.x) + Math.Abs(p.y - f.y);
 
                         if (f.x > p.x - this.Width / 2 && f.x < p.x + this.Width / 2 && f.y > p.y - this.Height / 2 && f.y < p.y + this.Height / 2 && p.chase == false && p.flee == false)
                         {
-                            if (_distance <= _bestDistance)
+                            if (distance <= bestDistance)
                             {
-                                _bestDistance = _distance;
+                                bestDistance = distance;
                                 closest[0] = f.x - Convert.ToInt32(p.size / 4);
                                 closest[1] = f.y - Convert.ToInt32(p.size / 4);
                             }
