@@ -11,24 +11,9 @@ using System.Media;
 
 namespace Agar
 {
-    /*Primary Wants:
-     * Actually show player in centre of screen | DONE
-     * Player grows when eating, eating in general | DONE
-     * Map border | DONE
-     * Splitting | Done?
-     * Speed changes with player size | DONE
-     * Skins, audio (not that important but very easy)
-     * 
-     * Secondary wants: 
-     * Viruses // Probably not
-     * Basic AI enemies | Done?
-     * Eat enemies, only when size is larger than them | Done?
-     * Feeding (not too hard, could prob do in 5 mins) // Probably won't do
-     * 
-     * Tertiary Goals: 
-     * Networking // NOPE
-     * Multiplayer // NOPE
-     * Adaptive view area // Probably not
+    /* January 2021
+     * Created by: Brayden Nykamp
+     * A beautiful recreation of Agar.io. A one-player game with SUPER ADVANCED AI.
      */
     public partial class Form1 : Form
     {
@@ -476,6 +461,7 @@ namespace Agar
                         {
                             gameTimer.Enabled = false;
                             generating = true;
+                            leaderboardLabel.Visible = false;
                             Begin();
                             break;
                         }
@@ -714,16 +700,16 @@ namespace Agar
                     }
                 }
                 //Drawing leaderboard
-                debugLabel.Text = "";
+                leaderboardLabel.Text = "";
                 for (int i = 0; i < 5; i++)
                 {
                     if (playerBoard[i] == false && leaderboard[i] != 0)
                     {
-                        debugLabel.Text += i + 1 + ": " + leaderboard[i] + "\n";
+                        leaderboardLabel.Text += i + 1 + ": " + leaderboard[i] + "\n";
                     }
                     else if (playerBoard[i] == true)
                     {
-                        debugLabel.Text += i + 1 + ": " + leaderboard[i] + " (You)" + "\n";
+                        leaderboardLabel.Text += i + 1 + ": " + leaderboard[i] + " (You)" + "\n";
                     }
                 }
 
@@ -768,6 +754,7 @@ namespace Agar
             startLabel.Visible = false;
             playButton.Visible = false;
             leaveButton.Visible = false;
+            leaderboardLabel.Visible = true;
 
             switch (selectedColour)
             {

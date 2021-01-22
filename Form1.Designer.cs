@@ -31,7 +31,7 @@ namespace Agar
         {
             this.components = new System.ComponentModel.Container();
             this.gameTimer = new System.Windows.Forms.Timer(this.components);
-            this.debugLabel = new System.Windows.Forms.Label();
+            this.leaderboardLabel = new System.Windows.Forms.Label();
             this.startLabel = new System.Windows.Forms.Label();
             this.nameLabel = new System.Windows.Forms.Label();
             this.nameBox = new System.Windows.Forms.TextBox();
@@ -50,15 +50,16 @@ namespace Agar
             this.gameTimer.Interval = 17;
             this.gameTimer.Tick += new System.EventHandler(this.gameTimer_Tick);
             // 
-            // debugLabel
+            // leaderboardLabel
             // 
-            this.debugLabel.AutoSize = true;
-            this.debugLabel.BackColor = System.Drawing.SystemColors.Control;
-            this.debugLabel.Location = new System.Drawing.Point(684, 56);
-            this.debugLabel.Name = "debugLabel";
-            this.debugLabel.Size = new System.Drawing.Size(35, 13);
-            this.debugLabel.TabIndex = 0;
-            this.debugLabel.Text = "label1";
+            this.leaderboardLabel.AutoSize = true;
+            this.leaderboardLabel.BackColor = System.Drawing.SystemColors.Control;
+            this.leaderboardLabel.Location = new System.Drawing.Point(684, 56);
+            this.leaderboardLabel.Name = "leaderboardLabel";
+            this.leaderboardLabel.Size = new System.Drawing.Size(35, 13);
+            this.leaderboardLabel.TabIndex = 0;
+            this.leaderboardLabel.Text = "label1";
+            this.leaderboardLabel.Visible = false;
             // 
             // startLabel
             // 
@@ -182,7 +183,7 @@ namespace Agar
             this.Controls.Add(this.nameBox);
             this.Controls.Add(this.nameLabel);
             this.Controls.Add(this.startLabel);
-            this.Controls.Add(this.debugLabel);
+            this.Controls.Add(this.leaderboardLabel);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Form1";
@@ -200,7 +201,7 @@ namespace Agar
         #endregion
 
         private System.Windows.Forms.Timer gameTimer;
-        private System.Windows.Forms.Label debugLabel;
+        private System.Windows.Forms.Label leaderboardLabel;
         private System.Windows.Forms.Label startLabel;
         private System.Windows.Forms.Label nameLabel;
         private System.Windows.Forms.TextBox nameBox;
